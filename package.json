@@ -1,0 +1,30 @@
+{
+  "name": "react-data-app",
+  "version": "0.0.1-rc.1",
+  "description": "Sample page of react-data-app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vinils/react-data-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vinils/react-data-app/issues/"
+  },
+  "homepage": "http://mypc01.ddns.net/data",
+  "author": {
+    "name": "vinils",
+    "email": "vini_ls@hotmail.com"
+  },
+  "dependencies": {
+    "@vinils/react-table": "0.0.1-rc.1",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-input-autosugest": "0.0.1-rc.4",
+    "react-scripts": "1.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
