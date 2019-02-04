@@ -19,14 +19,6 @@ class App extends Component {
       .then(res => res.json())
       .then(json => {
         loadArrayOfTreeFunctions(json.value, 'Id', 'Childs', 'Parent', 'ParentId')
-        // console.log(json.value)
-
-        // var arr = json.value[0].toArray();
-        // console.log(arr.length)
-        // arr.forEach(group=> {
-        //   console.log(group.parentReducer(group=> group.Initials ? group.Name + ' (' + group.Initials + ')' : group.Name, (accumulator, currentValue) => accumulator ? currentValue + '\\' + accumulator : currentValue ))
-        // })
-
         return json.value;
       })
       .then((response) => this.setState({groups: response}))
