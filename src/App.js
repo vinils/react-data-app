@@ -15,7 +15,6 @@ class App extends Component {
     const odataUrl = 'http://192.168.15.250/data/odata/v4'
     const oataGroupsUrl = odataUrl + '/groups'
     const groupsUrl = oataGroupsUrl + '?$filter=ParentId eq null&$expand=Childs($levels=max)'
-    console.log(groupsUrl)
     fetch(groupsUrl)
       .then(res => res.json())
       .then(json => {
