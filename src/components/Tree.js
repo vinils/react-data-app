@@ -6,7 +6,7 @@ function loadTreeFunctions (rootNode, nodeIdVariableName, childsVariableName, pa
     rootNode[parentVariableName] = parentNode;
     rootNode.forEachRecursively = (callBackFuncion) => forEachRecursively(rootNode, childsVariableName, callBackFuncion)
     rootNode.parentReducer = (reduceItem, aggregatorCallBack) => parentReduce(rootNode, parentVariableName, reduceItem, aggregatorCallBack);
-    rootNode.toArray = () => treeToArray(rootNode, childsVariableName);
+    rootNode.toArray = () => toArray(rootNode, childsVariableName);
     rootNode.findChild = (finderVariableName, keys) => findChild(rootNode, childsVariableName, finderVariableName, keys)
     rootNode.getFull = (elementVariableName) => getFull(rootNode, elementVariableName)
 
@@ -21,15 +21,7 @@ function loadTreeFunctions (rootNode, nodeIdVariableName, childsVariableName, pa
     }
 }
 
-function loadArrayOfTreeFunctions(array, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName) {
-    array.toArray = () => arrayOfTreeToArrayRecursively(array);
-
-    array.forEach(element => {
-        loadTreeFunctions(element, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName)
-    })
-}
-
-function treeToArray (treeNode) {
+function toArray (treeNode) {
     let ret = [treeNode]
 
     treeNode.forEachRecursively(child => ret.push(child))
@@ -66,7 +58,7 @@ function treeExtensions(prototype) {
     }
 
     prototype.toArray = function() {
-        return treeToArray(this, 'Childs')
+        return toArray(this, 'Childs')
     }
 }
 
@@ -89,11 +81,20 @@ function getFull(node, elementVariableName, separator = '\\') {
 function forEachRecursively(node, childsVariableName, callBackFuncion) {
     let callBackFunctionRecursively = (element) => { callBackFuncion(element); forEachRecursively(element, childsVariableName, callBackFuncion); }
 
-    if(node[childsVariableName]) {
-        node[childsVariableName]
-          .forEach(callBackFunctionRecursively)
+    if(!node[childsVariableName]) {
+        return;
     }
+
+    node[childsVariableName]
+        .forEach(callBackFunctionRecursively)
 }
 
+function loadArrayOfTreeFunctions(array, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName) {
+    array.toArray = () => arrayOfTreeToArrayRecursively(array);
+
+    array.forEach(element => {
+        loadTreeFunctions(element, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName)
+    })
+}
 
 export { loadTreeFunctions, treeExtensions, loadArrayOfTreeFunctions }
