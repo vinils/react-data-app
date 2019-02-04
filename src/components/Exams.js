@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import {TreeTable} from '@vinils/react-table'
+import {LoadPrototype as LoadArrayPrototype} from './Array';
+import {LoadPrototype as LoadDatePrototype} from './Date';
 
 export default class Exams extends Component {
     constructor (props) {
@@ -11,7 +13,8 @@ export default class Exams extends Component {
             keys: null
         }
 
-        this.loadPrototypes();
+        LoadDatePrototype();
+        LoadArrayPrototype();
 
         if(this.props.groupFilterId) {
             this.getData(this.props.groupFilterId)
@@ -64,7 +67,7 @@ export default class Exams extends Component {
                     keys = keys.concat(groupedExamsByDate.keys())
         
                     let groupedExamsByDateCasted = groupedExamsByDate
-                      .cast2((eg, key) => ({[key]: this.valueCol(eg[0])}))
+                      .cast((eg, key) => ({[key]: this.valueCol(eg[0])}))
         
                     ret = {
                         ...ret, 
@@ -87,115 +90,43 @@ export default class Exams extends Component {
         })
     }
 
-    loadPrototypes() {
-        let groupedDictionaryForEach = (dictionary, callBackFn) => {
-          Object.keys(dictionary).forEach((key, index) => {
-            let elements = dictionary[key]; 
-            if(!Array.isArray(elements)) {
-              return;
-            } else {
-              callBackFn(elements, key)
+    getLimitDescription(exam) {
+      let limitDescription = '';
+  
+      switch(exam["@odata.type"]) {
+        case "#Data.Models.ExamDecimal":
+          let limitDecimal = exam.LimitDenormalized;
+          if(limitDecimal) {
+            if(limitDecimal.Name) {
+              limitDescription += limitDecimal.Name + ":"
             }
-          })
-        }
-    
-        let groupedDictionaryCast = (dictionary, callBackFn) => {
-          let ret = {}
-    
-          dictionary.forEach((elements, key) => 
-            ret = {...ret, ...callBackFn(elements, key)}
-          );
-    
-          return ret;
-        }
-    
-        Date.prototype.formatToYYYY_MM_DD = function() {
-          let month = '' + (this.getMonth() + 1),
-          day = '' + this.getDate(),
-              year = this.getFullYear();
-    
-          if (month.length < 2) month = '0' + month;
-          if (day.length < 2) day = '0' + day;
-      
-          return [year, month, day].join('-');
-        }
-    
-        Date.prototype.formatToDD_MM_YY = function() {
-          let month = '' + (this.getMonth() + 1),
-          day = '' + this.getDate(),
-          year = this.getFullYear();
-    
-          if (month.length < 2) month = '0' + month;
-          if (day.length < 2) day = '0' + day;
-      
-          return [day, month, year-2000].join('/');
-        }
-    
-        Array.prototype.GroupBy = function(callBackFn) {
-          let ret = {}
-          this.forEach(element => {
-            let key = callBackFn(element)
-            if(!ret[key]) {
-    
-              ret[key] = []
+  
+            if(limitDecimal.MinType === "BiggerThan") {
+              limitDescription += " > " + limitDecimal.Min;
+            } else if(limitDecimal.MinType === "EqualsOrBiggerThan") {
+              limitDescription += " >= " + limitDecimal.Min;
             }
-    
-            ret[key].push(element)
-          })
-    
-          if(!ret.forEach) {
-            ret.forEach = (callBackFn) => groupedDictionaryForEach(ret, callBackFn);
+  
+            if(limitDecimal.MinType && limitDecimal.MaxType) {
+              limitDescription += " e"
+            }
+  
+            if(limitDecimal.MaxType === "SmallThan") {
+              limitDescription += " < " + limitDecimal.Max;
+            } else if(limitDecimal.MaxType === "SmallOrEqualsThan") {
+              limitDescription += " <= " + limitDecimal.Max;
+            }
           }
-          if(!ret.cast2) {
-            ret.cast2 = (callBackFn) => groupedDictionaryCast(ret, callBackFn);
-          }
-          if(!ret.keys) {
-            ret.keys = () => Object.keys(ret).filter(k => Array.isArray(ret[k]))
-          }
-          return ret;
-        }
-    
-        Array.prototype.Distinct = function() {
-          return this.filter((value, index, self) => self.indexOf(value) === index)
-        }
+          break;
+        case "#Data.Models.ExamString":
+          let limitString = exam.LimitDenormalized;
+          limitDescription = limitString ? limitString.Expected : null
+          break;
+        default:
       }
-      getLimitDescription(exam) {
-        let limitDescription = '';
-    
-        switch(exam["@odata.type"]) {
-          case "#Data.Models.ExamDecimal":
-            let limitDecimal = exam.LimitDenormalized;
-            if(limitDecimal) {
-              if(limitDecimal.Name) {
-                limitDescription += limitDecimal.Name + ":"
-              }
-    
-              if(limitDecimal.MinType === "BiggerThan") {
-                limitDescription += " > " + limitDecimal.Min;
-              } else if(limitDecimal.MinType === "EqualsOrBiggerThan") {
-                limitDescription += " >= " + limitDecimal.Min;
-              }
-    
-              if(limitDecimal.MinType && limitDecimal.MaxType) {
-                limitDescription += " e"
-              }
-    
-              if(limitDecimal.MaxType === "SmallThan") {
-                limitDescription += " < " + limitDecimal.Max;
-              } else if(limitDecimal.MaxType === "SmallOrEqualsThan") {
-                limitDescription += " <= " + limitDecimal.Max;
-              }
-            }
-            break;
-          case "#Data.Models.ExamString":
-            let limitString = exam.LimitDenormalized;
-            limitDescription = limitString ? limitString.Expected : null
-            break;
-          default:
-        }
-    
-        return limitDescription;
-      }
+  
+      return limitDescription;
+    }
     
     valueCol(exam) {
         let value = null;
