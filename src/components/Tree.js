@@ -1,4 +1,4 @@
-function loadTreeFunctions (rootNode, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName, parentNode = null) {
+function loadTreeFunctions(rootNode, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName, parentNode = null) {
     if(!rootNode) {
         return;
     }
@@ -17,30 +17,30 @@ function loadTreeFunctions (rootNode, nodeIdVariableName, childsVariableName, pa
     if(rootNode[childsVariableName]) {
         rootNode[childsVariableName].forEach(element => {
             loadTreeFunctions(element, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName, rootNode)
-        })
+        });
     }
 }
 
-function toArray (treeNode) {
+function toArray(treeNode) {
     let ret = [treeNode]
 
-    treeNode.forEachRecursively(child => ret.push(child))
+    treeNode.forEachTree(child => ret.push(child))
 
     return ret;
 }
 
-function arrayOfTreeToArrayRecursively (array) {
+function arrayOfTreeToArrayRecursively(array) {
     let ret = []
 
     array.forEach(tree => {
         ret.push(tree)
-        tree.forEachRecursively(child => ret.push(child))
+        tree.forEachTree(child => ret.push(child))
     });
 
     return ret
 }
   
-function parentReduce (treeNode, parentVariableName, reduceItem, aggregatorCallBack) {
+function parentReduce(treeNode, parentVariableName, reduceItem, aggregatorCallBack) {
     let ret = aggregatorCallBack(null, reduceItem(treeNode))
     let parent = treeNode[parentVariableName] 
 
@@ -94,7 +94,7 @@ function loadArrayOfTreeFunctions(array, nodeIdVariableName, childsVariableName,
 
     array.forEach(element => {
         loadTreeFunctions(element, nodeIdVariableName, childsVariableName, parentVariableName, parentIdVariableName)
-    })
+    });
 }
 
 export { loadTreeFunctions, treeExtensions, loadArrayOfTreeFunctions }
