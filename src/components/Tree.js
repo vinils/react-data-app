@@ -4,7 +4,7 @@ function loadTreeFunctions (rootNode, nodeIdVariableName, childsVariableName, pa
     }
 
     rootNode[parentVariableName] = parentNode;
-    rootNode.forEachRecursively = (callBackFuncion) => forEachRecursively(rootNode, childsVariableName, callBackFuncion)
+    rootNode.forEachTree = (callBackFuncion) => forEachRecursively(rootNode, childsVariableName, callBackFuncion)
     rootNode.parentReducer = (reduceItem, aggregatorCallBack) => parentReduce(rootNode, parentVariableName, reduceItem, aggregatorCallBack);
     rootNode.toArray = () => toArray(rootNode, childsVariableName);
     rootNode.findChild = (finderVariableName, keys) => findChild(rootNode, childsVariableName, finderVariableName, keys)
