@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import InputAutoSugest from 'react-input-autosugest'
-import { Group } from './Data';
+import { Group } from '../Classes/Data';
 
 class InputGroups extends Component {
     constructor(props){
@@ -78,10 +78,10 @@ class InputGroups extends Component {
  
         // return {
         //     "All": [],
-        //     "Exams": [],
+        //     "Datas": [],
         //     "Parent": {
         //         "All": [],
-        //         "Exams": [],
+        //         "Datas": [],
         //         "Parent": null,
         //         "Synonymous": null,
         //         "Synonyms": [],
@@ -93,7 +93,7 @@ class InputGroups extends Component {
         //     "Synonymous": null,
         //     "Synonyms": [],
         //     "Id": "38928e69-0432-c3f9-2540-79301fdd27fc",
-        //     "Name": "Exame Físico",
+        //     "Name": "Dado Físico",
         //     "Initials": null,
         //     "ParentId": "33ccb123-3f1c-8d09-63e4-9c7e32ebae76"
         // }

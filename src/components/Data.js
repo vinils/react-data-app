@@ -1,209 +1,447 @@
-const CreateGuid = () => {
-    function _p8(s) {
-        var p = (Math.random().toString(16) + "000000000").substr(2, 8);
-        return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
-    }
-    return _p8() + _p8(true) + _p8(true) + _p8();
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import InputValue, { Types as valueTypes } from './InputValue'
+import InputAutoSugest from 'react-input-autosugest'
+import {groupExtensions, DataString, DataDecimal, Group} from '../Classes/Data'
+import InputGroups from './InputGroups'
+import { treeExtensions } from './Tree';
+
+const data = [
+    'aabaa1',
+    'aaaaa2',
+    'aaaaa3',
+    'aaaaa4'
+]
+
+const cell = {
+    display: 'inline-block',
+    padding: '10px'
+};
+
+const styles = {
+    cell: cell
+};
+
+const StringLimitCons = (props) => {
+    return (
+        <React.Fragment>
+            <div style={styles.cell}>
+                <label>Cor: </label>
+                <br/>
+                <select 
+                  name={props.colorName} 
+                  value={props.colorValue} 
+                  onChange={props.onChange}>
+                    <option value=''>Transparente</option>
+                    <option value={16776960}>Amarelo</option>
+                    <option value={16711680}>Vermelho</option>
+                </select>
+            </div>
+            {!props.colorValue ? null : (
+                <div style={styles.cell}>
+                    <label>Esperado: </label>
+                    <br/>
+                    <InputAutoSugest
+                      name={props.expectedName}
+                      value={props.expectedValue}
+                      onChange={props.onChange}
+                      data={props.limitData}
+                      placeholder="ex.: Positivo"/>
+                </div>
+            )}
+        </React.Fragment>
+    )
 }
 
-export class Group {
-    constructor(name, initials = null, parent = null, id = null, synonymous = null, measureUnit = null) {
-        this.Id = id ? id : CreateGuid();
-        this.Name =  this.getName(name);
-        this.Initials =  initials ? initials : this.getInitial(name);
-        this.Parent =  parent
-        this.ParentId = parent ? parent.Id : null
-        // this.Synonymous =  synonymous
-        // this.Synonymous_Id = synonymous ? synonymous.Id : null
-        this.MeasureUnit = measureUnit ? measureUnit : null
+const NumberLimitCons = (props) => {
+    return (
+        <React.Fragment>
+            <div style={{...styles.cell, border: '1px solid black'}}>
+                <div style={styles.cell}>
+                    <label>Tipo: </label>
+                    <br/>
+                    <select
+                      name={props.minTypeName} 
+                      value={props.minTypeValue} 
+                      onChange={props.onChange}>
+                        <option></option>
+                        <option value={2}>>=</option>
+                        <option value={1}>></option>
+                    </select>
+                </div>
+                <div style={styles.cell}>
+                    <label>Min: </label>
+                    <br/>
+                    <input
+                        name={props.minName}
+                        value={props.minValue}
+                        onChange={props.onChange}/>
+                </div>
+                <br/>
+                <div style={styles.cell}>
+                    <label>Tipo: </label>
+                    <br/>
+                    <select 
+                      name={props.maxTypeName}
+                      value={props.maxTypeValue} 
+                      onChange={props.onChange}>
+                        <option></option>
+                        <option value={2}>{'<='}</option>
+                        <option value={1}>{'<'}</option>
+                    </select>
+                </div>
+                <div style={styles.cell}>
+                    <label>Max: </label>
+                    <br/>
+                    <input
+                        name={props.maxName}
+                        value={props.maxValue}
+                        onChange={props.onChange}/>
+                </div>
+                <br/>
+                <div style={styles.cell}>
+                    <label>Cor: </label>
+                    <select 
+                      name={props.colorName} 
+                      value={props.colorValue} 
+                      onChange={props.onChange}>
+                        <option value={''}>Transparente</option>
+                        <option value={16776960}>Amarelo</option>
+                        <option value={16711680}>Vermelho</option>
+                    </select>
+                </div>
+                {!props.colorValue ? null : (
+                    <React.Fragment>
+                        <br/>
+                        <div style={styles.cell}>
+                            <label>Descrição: </label>
+                            <InputAutoSugest
+                              name={props.descriptionName}
+                              value={props.descriptionValue}
+                              onChange={props.onChange}
+                              data={data}/>
+                        </div>
+                    </React.Fragment>
+                ) }
+                <br/>
+                <div style={styles.cell}>
+                    <button
+                      onClick={props.onSave}>
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </React.Fragment>
+    )
+}
+
+class Data extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+    //   name: '',
+    //   initials: '',
+      value: '',
+      valueType: valueTypes.empty,
+      collectionDate: '',
+      synonyms: '',
+      measureUnit1: '',
+      activedIdx: -1,
+
+      stringLimitExpected: '',
+      stringLimitColor: '',
+
+      limitNumberDescription: '',
+      decimalLimitMinType: undefined,
+      decimalLimitMin: '',
+      decimalLimitMaxType: undefined,
+      decimalLimitMax: '',
+      decimalLimitColor: '',
+
+      existentGroup: '',
+      newGroup: null,
     }
 
-    getName(name) {
-        let initialsIndexStart = name.indexOf('(')
-
-        if(initialsIndexStart === -1){
-            return name;
-        } else {
-            return name.substr(0, initialsIndexStart).trim();
-        }
-    }
-
-    getInitial(name){
-        let initialsIndexStart = name.indexOf('(')
-        let initialsIndexEnd = name.indexOf(')')
-
-        if(initialsIndexStart === -1) {
-            return null;
-        }
-
-        if(initialsIndexEnd === -1) {
-            return name.substr(initialsIndexStart + 1).trim()
-        } else {
-            return name.substr(initialsIndexStart + 1, initialsIndexEnd - initialsIndexStart - 1).trim()
-        }
-    }
-
-    newChild(name, initials = null, id = null, synonymous = null) {
-        return new Group(name, initials, this, id, synonymous);
-    }
-
-    addChild(group) {
-
-        let last = group;
-
-        while(last.Parent){
-            last = last.Parent;
-        }
-
-        last.ParentId = this.id;
-        return group;
-    }
-
-    // lastParent() {
-    //     let last = this;
-
-    //     while(last.Parent){
-    //         last = last.Parent;
+    groupExtensions(DataString.prototype);
+    groupExtensions(DataDecimal.prototype);
+    treeExtensions(Group.prototype);
+    
+    // fetch('http://192.168.15.143:57956/odata/v4/groupsv4(98B34F14-6DAA-3EE4-4EB1-E6D4F691960E)/GetAllRecursively')
+    // .then((response) => {
+    //     if(!response.ok) {
+    //         console.log(response)
+    //         throw Error(response.statusText)
+    //         // return Promise.reject({status: response.status, response});
     //     }
 
-    //     return last;
-    // }
+    //     response.json().then(data => {
+    //         if(!response.ok) {
+    //             console.log(data)
+    //             throw Error(data)
+    //             // return Promise.reject({status: response.status, data});
+    //         }
 
-    revert() {
-        let next = this;
-        let reverted = this.clone();
+    //         this.setState({datas: data.value, loadingDatas:false})
+    //     })
+    // })
+    // .catch((error) => console.log(error))
 
-        while(next.Parent){
-            next = next.Parent;
-            reverted.addGroup()
-        }
+    // selectGroups2('98B34F14-6DAA-3EE4-4EB1-E6D4F691960E')
+    // .then((response) => {
+    //     this.setState({groups: response, loadingGroups:false})
+    // })
+    // .catch((error) => console.log(error))
+  }
 
-    }
-}
+  handleChange = e => 
+    this.setState({[e.target.name]: e.target.value})
 
-export function groupExtensions(prototype) {
-    // prototype.addGroup = function(name, initials = null, parent = null, id = null, synonymous = null) { 
-    //     this.Group = new Group(name, initials, parent = null, id = null, synonymous = null);
-    //     this.Group_Id = this.Group.Id;
-    // }
-    prototype.addGroup = function(existentGroups = null, newGroups = null, measureUnit = null) {
-        if (existentGroups && newGroups) {
-            // existentGroups.addChild(newGroups);
-            let last = newGroups;
+  handleExistentGroupChange = e => {
+      const newState = {
+          existentGroup: e.target.value,
+          measureUnit1: e.target.value && e.target.value.MeasureUnit ? e.target.value.MeasureUnit : '',
+      }
 
-            while(last.Parent) {
-                last = last.Parent;
-            }
+    this.setState(newState)
+  }
+
+  handleOnTypeValueCahnge = (type) => 
+    this.setState({valueType: type});
+
+  showLimitString() {
+    return (
+        <React.Fragment>
+            <br/>
+            <StringLimitCons
+              expectedName="stringLimitExpected"
+              expectedValue={this.state.stringLimitExpected}
+              limitData={data}
+              colorName="stringLimitColor"
+              colorValue={this.state.stringLimitColor}
+              onChange={this.handleChange}/> 
+        </React.Fragment>
+    )
+  }
+
+  showLimitNumber() {
+    return (
+        <div style={styles.cell}>
+            <NumberLimitCons
+              minTypeName='decimalLimitMinType' 
+              minTypeValue={this.state.decimalLimitMinType} 
+              minName='decimalLimitMin'
+              minValue={this.state.decimalLimitMin}
+              maxTypeName='decimalLimitMaxType'
+              maxTypeValue={this.state.decimalLimitMaxType} 
+              maxName='decimalLimitMax'
+              maxValue={this.state.decimalLimitMax}
+              colorName='decimalLimitColor'
+              colorValue={this.state.decimalLimitColor} 
+              descriptionName='limitNumberDescription'
+              descriptionValue={this.state.limitNumberDescription}
+              onChange={this.handleChange}
+              onSave={this.handleSave}/>
+        </div>
+    )
+  }
+
+  showNewGroup() {
+    return (
+        <React.Fragment>
+            <div style={styles.cell}>
+                <label>Novo subgrupo: </label>
+                <br/>
+                <InputGroups
+                    size="49"
+                    name="newGroup"
+                    value={this.state.newGroup}
+                    onChange={this.handleChange}
+                    placeholder="Grupo D\Grupo E ou Grupo E/Grupo D"
+                    data={[]}/>
+            </div>
+            <br/>
+        </React.Fragment>
+    )
+  }
+
+  showMeasureUnit() {
+    return (
+        <React.Fragment>
+            <br/>
+            <div style={styles.cell}>
+                <label>Un: </label>
+                <br/>
+                <InputAutoSugest
+                  readOnly={this.state.existentGroup && this.state.existentGroup.isNew !== true && this.state.newGroup === null}
+                  size="8"
+                  name="measureUnit1"
+                  value={this.state.measureUnit1}
+                  onChange={this.handleChange}
+                  data={data}/>
+            </div>
+        </React.Fragment>
+    )
+  }
+
+  handleSave = () => {
+    const {collectionDate, value, stringLimitExpected, stringLimitColor, limitNumberDescription, decimalLimitMinType, decimalLimitMin, decimalLimitMaxType, decimalLimitMax, decimalLimitColor, existentGroup, newGroup} = this.state;
     
-            last.ParentId = existentGroups.Id;
-        }
+    switch(this.state.valueType) {
+        case valueTypes.string:
+            let dataString = new DataString(
+                collectionDate,
+                value
+            );
 
-        if(existentGroups.isNew) {
-            let group = existentGroups
+            dataString.addGroup(existentGroup, newGroup, this.state.measureUnit1);
 
-            if(newGroups) {
-                group = existentGroups.addChild(newGroups)
+            if(stringLimitExpected || stringLimitColor) {
+                dataString.addLimit(stringLimitExpected, stringLimitColor)
             }
 
-            group.MeasureUnit = measureUnit;
-            this.Group = group;
-            this.GroupId = group.Id;
-        } else {
-            if(newGroups) {
-                newGroups.ParentId = existentGroups.Id;
-                newGroups.MeasureUnit = measureUnit;
-                this.Group = newGroups;
-                this.GroupId = newGroups.Id
-            } else if(existentGroups) {
-                this.Group = null;
-                this.GroupId = existentGroups.Id;
-            } else {
-                this.Group = null;
-                this.GroupId = null;
+            console.log(dataString)
+            
+        //     insertDataStringLimit(data)
+        fetch('http://192.168.15.250/data/odata/v4/datas', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataString)
+          })
+        .then((response) => 
+            response.json().then(data => {
+              if (response.ok) {
+                  
+                  this.setState({name: ''})
+                //   this.nameRef.focus()
+                  return data;
+              } else {
+                return Promise.reject({status: response.status, data});
+              }
+            })
+          )
+          .then((responseJson) => { 
+              // console.log(responseJson)
+              // console.log(responseJson.ok)
+          })
+          .catch((error) => {
+            console.error(error); })
+
+        break;
+        case valueTypes.number:
+            var dataDecimal = new DataDecimal(
+                collectionDate,
+                value
+            );
+
+            dataDecimal.addGroup(existentGroup, newGroup, this.state.measureUnit1);
+
+            if(limitNumberDescription || decimalLimitMinType || decimalLimitMin || decimalLimitMaxType || decimalLimitMax || decimalLimitColor) {
+                dataDecimal.addLimit(limitNumberDescription, decimalLimitMinType, decimalLimitMin, decimalLimitMaxType, decimalLimitMax, decimalLimitColor)
             }
-        }
 
-        if(this.Group) {
-            this.Group.MeasureUnit = measureUnit;
-            delete this.Group['isNew'];
-            let parentGroup = this.Group.Parent
-            while(parentGroup) {
-                delete parentGroup['isNew'];
-                parentGroup = parentGroup.Parent
-            }
-        }
+            console.log(dataDecimal)
 
+            // insertDatadecimals(data)
+            fetch('http://192.168.15.250/data/odata/v4/datas', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataDecimal)
+              })
+            .then((response) => 
+              response.json().then(data => {
+                if (response.ok) {
+                    this.setState({
+                        existentGroup: dataDecimal.Group ? dataDecimal.Group : existentGroup, 
+                        newGroup: null
+                    })
+                    return data;
+                } else {
+                  return Promise.reject({status: response.status, data});
+                }
+              })
+            )
+            .then((responseJson) => { 
+                // console.log(responseJson)
+                // console.log(responseJson.ok)
+            })
+            .catch((error) => {
+              console.error(error); })
+        break;
+        default:
+    }
+  }
+
+  displayDataName(data){
+      return data.Name;
+  }
+
+  displayGroupName = (group) => {
+      return group.parentReducer(group=> group.Initials ? group.Name + ' (' + group.Initials + ')' : group.Name, (accumulator, currentValue) => accumulator ? accumulator + currentValue + '/' : currentValue + '/' )
+  }
+
+  filterData = (data) => {
+    return data.Name.toLowerCase().indexOf(this.state.name.toLocaleLowerCase()) >= 0;
+  }
+
+    render () {
+        const {value, collectionDate} = this.state
+        return (
+            <div style={styles.cell}>
+                <div style={styles.cell}>
+                    <div style={styles.cell}>
+                        <label>Nome: </label>
+                        <br/>
+                        <InputGroups
+                            size="50"
+                            name="existentGroup"
+                            value={this.state.existentGroup}
+                            onChange={this.handleExistentGroupChange}
+                            placeholder="Dado (Sigla)/Grupo B (B)/Grupo A(A)"
+                            data={this.props.group.toArray()}/>
+                    </div>
+                    <br/>
+                    { this.state.existentGroup && this.state.existentGroup.isNew !== true ? this.showNewGroup() : null }
+                    <div style={styles.cell}>
+                        <label>Valor: </label>
+                        <br/>
+                        <InputValue
+                            value={value}
+                            onChange={this.handleChange}
+                            onTypeChange={this.handleOnTypeValueCahnge}/>
+                    </div>
+                    <div style={styles.cell}>
+                        <label>Data da coleta: </label>
+                        <br/>
+                        <InputAutoSugest
+                            name="collectionDate"
+                            value={collectionDate}
+                            placeholder="yyyy-mm-dd"
+                            onChange={this.handleChange}
+                            data={data}/>
+                    </div>
+                    { this.state.valueType === valueTypes.number ? this.showMeasureUnit() : null }
+                    { this.state.valueType === valueTypes.string ? this.showLimitString() : null }
+                    <br/>
+                    <div style={styles.cell}>
+                        <button
+                            onClick={this.handleSave}>
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+                { this.state.valueType === valueTypes.number ? this.showLimitNumber() : null }
+            </div>
+        );
     }
 }
 
-export function examExtensions(prototype){
-    prototype.addExam = function(name, initials, collectionDate, value) { 
-        this.Exam = new Exam(name, initials, collectionDate, value)
-        this.Exam_Name = this.Exam.Name;
-        this.Exam_CollectionDate = this.Exam.CollectionDate;
-    }
-    prototype.addExam = function(exam) { 
-        this.Exam = exam
-        this.Exam_Name = this.Exam.Name;
-        this.Exam_CollectionDate = this.Exam.CollectionDate;
-    }
+Data.propTypes = {
+  // createPost: PropTypes.func.isRequired,
+  // user: PropTypes.array.isRequired
 }
 
-export class Exam {
-    constructor(collectionDate, value) {
-        this.CollectionDate =  collectionDate;
-        // this.Value =  value;
-    }
-}
-
-export class ExamString extends Exam {
-    constructor(collectionDate, value) {
-        super(collectionDate, value);
-
-        this["@odata.type"] = "#Data.Models.ExamString";
-        this.StringValue =  value;
-    }
-
-    addLimit(expected, color){
-        let limit = {
-            GroupId: this.GroupId,
-            CollectionDate: this.CollectionDate,
-            Color: color,
-            Name: expected
-        }
-
-        this.LimitDenormalized =  limit;
-    }
-}
-
-export class MeasureUnit {
-    constructor(name) {
-        this.Name = name;
-    }
-}
-
-export class ExamDecimal extends Exam {
-    constructor(collectionDate, value) {
-        super(collectionDate, value);
-
-        this["@odata.type"] = "#Data.Models.ExamDecimal";
-        this.DecimalValue =  parseFloat(value);
-    }
-
-    addLimit(description, minType, min, maxType, max, color) {
-
-        let limit = {
-            GroupId: this.GroupId,
-            CollectionDate: this.CollectionDate,
-            MinType: minType,
-            Min: parseFloat(min),
-            MaxType: maxType,
-            Max: parseFloat(max),
-            Color: color ? parseInt(color, 16) : null,
-            Name: description
-        }
-
-        this.LimitDenormalized =  limit;
-    }
-}
-
+export default Data

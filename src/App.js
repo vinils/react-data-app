@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import Exam from './components/Exam'
-import Exams from './components/Exams'
+import Data from './components/Data'
+import Datas from './components/Datas'
 import { loadArrayOfTreeFunctions } from './components/Tree';
 
 class App extends Component {
@@ -62,8 +62,8 @@ class App extends Component {
           </select>
 
           <br/>
-          <Exam group={this.state.selectedGroupId ? groupsData.find(g => g.id === this.state.selectedGroupId).object : this.state.groups}/>
-          {this.state.selectedGroupId ? <Exams groupFilterId={this.state.selectedGroupId}/> : null }
+          <Data group={this.state.selectedGroupId ? groupsData.find(g => g.id === this.state.selectedGroupId).object : this.state.groups}/>
+          {this.state.selectedGroupId ? <Datas groupFilterId={this.state.selectedGroupId}/> : null }
         </div>
       );
     }

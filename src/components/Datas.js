@@ -3,7 +3,7 @@ import {TreeTable} from '@vinils/react-table'
 import {LoadPrototype as LoadArrayPrototype} from './Array';
 import {LoadPrototype as LoadDatePrototype} from './Date';
 
-export default class Exams extends Component {
+export default class Datas extends Component {
     constructor (props) {
         super(props)
         
@@ -44,14 +44,14 @@ export default class Exams extends Component {
       
         const odataUrl = 'http://192.168.15.250/data/odata/v4'
         const oataGroupsUrl = odataUrl + '/groups'
-        const examsUrl = oataGroupsUrl + `?$filter=Id eq ${dataGroupId}&$expand=Childs($levels=max;$expand=Exams($expand=Data.Models.ExamDecimal/LimitDenormalized,Data.Models.ExamString/LimitDenormalized))`
-        fetch(examsUrl)
+        const datasUrl = oataGroupsUrl + `?$filter=Id eq ${dataGroupId}&$expand=Childs($levels=max;$expand=Datas($expand=Data.Models.DataDecimal/LimitDenormalized,Data.Models.DataString/LimitDenormalized))`
+        fetch(datasUrl)
           .then(res => res.json())
           .then(json => {
-            let groupExams = json.value[0];
-            groupExams.cast = (callBackFn) => castTree(groupExams, 'Childs', callBackFn);
+            let groupDatas = json.value[0];
+            groupDatas.cast = (callBackFn) => castTree(groupDatas, 'Childs', callBackFn);
             let keys = []
-            let exams = groupExams.cast(group => {
+            let datas = groupDatas.cast(group => {
                 let ret = {
                     Id: group.Id,
                     Name: group.Name,
@@ -60,21 +60,21 @@ export default class Exams extends Component {
                     ParentId: group.ParentId
                 }
     
-                if(group.Exams) {
-                    let groupedExamsByDate = group.Exams
+                if(group.Datas) {
+                    let groupedDatasByDate = group.Datas
                       .GroupBy(e => new Date(e.CollectionDate).formatToYYYY_MM_DD() + "T00:00:00");
         
-                    keys = keys.concat(groupedExamsByDate.keys())
+                    keys = keys.concat(groupedDatasByDate.keys())
         
-                    let groupedExamsByDateCasted = groupedExamsByDate
+                    let groupedDatasByDateCasted = groupedDatasByDate
                       .cast((eg, key) => ({[key]: this.valueCol(eg[0])}))
         
                     ret = {
                         ...ret, 
-                        ...groupedExamsByDateCasted
+                        ...groupedDatasByDateCasted
                     }
         
-                    let limits = group.Exams
+                    let limits = group.Datas
                       .map(e=> this.getLimitDescription(e))
                       .filter(l => l != null || l !== '');
         
@@ -86,16 +86,16 @@ export default class Exams extends Component {
                 return ret;
             })
     
-            this.setState({data: exams, keys: keys.Distinct()})
+            this.setState({data: datas, keys: keys.Distinct()})
         })
     }
 
-    getLimitDescription(exam) {
+    getLimitDescription(data) {
       let limitDescription = '';
   
-      switch(exam["@odata.type"]) {
-        case "#Data.Models.ExamDecimal":
-          let limitDecimal = exam.LimitDenormalized;
+      switch(data["@odata.type"]) {
+        case "#Data.Models.DataDecimal":
+          let limitDecimal = data.LimitDenormalized;
           if(limitDecimal) {
             if(limitDecimal.Name) {
               limitDescription += limitDecimal.Name + ":"
@@ -118,8 +118,8 @@ export default class Exams extends Component {
             }
           }
           break;
-        case "#Data.Models.ExamString":
-          let limitString = exam.LimitDenormalized;
+        case "#Data.Models.DataString":
+          let limitString = data.LimitDenormalized;
           limitDescription = limitString ? limitString.Expected : null
           break;
         default:
@@ -128,21 +128,21 @@ export default class Exams extends Component {
       return limitDescription;
     }
     
-    valueCol(exam) {
+    valueCol(data) {
         let value = null;
         let color = null;
     
-        switch(exam["@odata.type"]){
-          case "#Data.Models.ExamDecimal":
-            value = exam.DecimalValue;
-            color = exam.LimitDenormalized ? exam.LimitDenormalized.Color : null;
+        switch(data["@odata.type"]){
+          case "#Data.Models.DataDecimal":
+            value = data.DecimalValue;
+            color = data.LimitDenormalized ? data.LimitDenormalized.Color : null;
             break;
-          case "#Data.Models.ExamString":
-            value = exam.StringValue;
-            color = exam.LimitDenormalized ? exam.LimitDenormalized.Color : null;
+          case "#Data.Models.DataString":
+            value = data.StringValue;
+            color = data.LimitDenormalized ? data.LimitDenormalized.Color : null;
             break;
           default:
-            throw new Error("exam type not identified")
+            throw new Error("data type not identified")
         }
     
         return <div style={color ? {backgroundColor: '#' + color.toString(16)} : null}><center>{value}</center></div> 
