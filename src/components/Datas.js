@@ -42,7 +42,7 @@ export default class Datas extends Component {
             }
         }
       
-        const odataUrl = 'http://192.168.15.35:8002/odata/v4'
+        const odataUrl = 'http://' + process.env.REACT_APP_DATA_POINT
         const oataGroupsUrl = odataUrl + '/groups'
         const datasUrl = oataGroupsUrl + `?$filter=Id eq ${dataGroupId}&$expand=Childs($levels=max;$expand=Datas($expand=Data.Models.DataDecimal/LimitDenormalized,Data.Models.DataString/LimitDenormalized))`
         fetch(datasUrl)

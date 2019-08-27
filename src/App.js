@@ -12,7 +12,7 @@ class App extends Component {
       selectedGroupId: '',
     }
 
-    const odataUrl = 'http://192.168.15.35:8002/odata/v4'
+    const odataUrl = 'http://' + process.env.REACT_APP_DATA_POINT
     const oataGroupsUrl = odataUrl + '/groups'
     const groupsUrl = oataGroupsUrl + '?$filter=ParentId eq null&$expand=Childs($levels=max)'
     fetch(groupsUrl)

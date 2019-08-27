@@ -302,7 +302,7 @@ class Data extends Component {
             console.log(dataString)
             
         //     insertDataStringLimit(data)
-        fetch('http://192.168.15.250/data/odata/v4/datas', {
+        fetch('http://' + process.env.REACT_APP_DATA_POINT + '/datas', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -344,7 +344,7 @@ class Data extends Component {
             console.log(dataDecimal)
 
             // insertDatadecimals(data)
-            fetch('http://192.168.15.250/data/odata/v4/datas', {
+            fetch('http://' + process.env.REACT_APP_DATA_POINT + '/datas', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
