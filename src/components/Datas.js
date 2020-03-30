@@ -44,11 +44,11 @@ export default class Datas extends Component {
       
         const odataUrl = 'http://' + process.env.REACT_APP_DATA_POINT
         const oataGroupsUrl = odataUrl + '/groups'
-        const datasUrl = oataGroupsUrl + `?$filter=Id eq ${dataGroupId}&$expand=Childs($levels=max;$expand=Datas($expand=Data.Models.DataDecimal/LimitDenormalized,Data.Models.DataString/LimitDenormalized))`
+        const datasUrl = oataGroupsUrl + `/ChildsRecursively?groupId=${dataGroupId}`
         fetch(datasUrl)
           .then(res => res.json())
           .then(json => {
-            let groupDatas = json.value[0];
+            let groupDatas = JSON.parse(json.value)[0];
             groupDatas.cast = (callBackFn) => castTree(groupDatas, 'Childs', callBackFn);
             let keys = []
             let datas = groupDatas.cast(group => {
@@ -93,8 +93,8 @@ export default class Datas extends Component {
     getLimitDescription(data) {
       let limitDescription = '';
   
-      switch(data["@odata.type"]) {
-        case "#Data.Models.DataDecimal":
+      switch(data["odata.type"]) {
+        case "Data.Models.DataDecimal":
           let limitDecimal = data.LimitDenormalized;
           if(limitDecimal) {
             if(limitDecimal.Name) {
@@ -118,7 +118,7 @@ export default class Datas extends Component {
             }
           }
           break;
-        case "#Data.Models.DataString":
+        case "Data.Models.DataString":
           let limitString = data.LimitDenormalized;
           limitDescription = limitString ? limitString.Expected : null
           break;
@@ -132,12 +132,12 @@ export default class Datas extends Component {
         let value = null;
         let color = null;
     
-        switch(data["@odata.type"]){
-          case "#Data.Models.DataDecimal":
+        switch(data["odata.type"]){
+          case "Data.Models.DataDecimal":
             value = data.DecimalValue;
             color = data.LimitDenormalized ? data.LimitDenormalized.Color : null;
             break;
-          case "#Data.Models.DataString":
+          case "Data.Models.DataString":
             value = data.StringValue;
             color = data.LimitDenormalized ? data.LimitDenormalized.Color : null;
             break;

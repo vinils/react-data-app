@@ -160,7 +160,7 @@ export class DataString extends Data {
     constructor(collectionDate, value) {
         super(collectionDate, value);
 
-        this["@odata.type"] = "#Data.Models.DataString";
+        this["odata.type"] = "Data.Models.DataString";
         this.StringValue =  value;
     }
 
@@ -186,7 +186,7 @@ export class DataDecimal extends Data {
     constructor(collectionDate, value) {
         super(collectionDate, value);
 
-        this["@odata.type"] = "#Data.Models.DataDecimal";
+        this["odata.type"] = "Data.Models.DataDecimal";
         this.DecimalValue =  parseFloat(value);
     }
 
