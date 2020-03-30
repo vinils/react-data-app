@@ -1,4 +1,4 @@
-FROM stefanscherer/node-windows:latest
+FROM node:latest
 WORKDIR /usr/app
 
 COPY package*.json ./
