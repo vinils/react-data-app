@@ -1,11 +1,12 @@
 FROM node:latest
-WORKDIR /usr/app
+WORKDIR /app
 
 COPY package*.json ./
-RUN yarn install
+RUN npm install
 
 COPY . .
+RUN npm run-script build
 
 EXPOSE 3001
 
-CMD yarn run build && yarn run start
+CMD npm run start

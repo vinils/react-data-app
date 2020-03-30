@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import InputAutoSugest from 'react-input-autosugest'
-import { Group } from '../Classes/Data';
+import { Group } from '../classes/Data';
 
 class InputGroups extends Component {
     constructor(props){

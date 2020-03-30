@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import InputValue, { Types as valueTypes } from './InputValue'
 import InputAutoSugest from 'react-input-autosugest'
-import {groupExtensions, DataString, DataDecimal, Group} from '../Classes/Data'
+import {groupExtensions, DataString, DataDecimal, Group} from '../classes/Data'
 import InputGroups from './InputGroups'
 import { treeExtensions } from './Tree';
 
